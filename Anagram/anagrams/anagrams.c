@@ -1,27 +1,29 @@
 #include "include/add.h"
 int checkAnagram(char a[],char b[]){
-		int a_count[26] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-		int b_count[26] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+		int a_count[59] = {0};
+		int b_count[59] = {0};
 		int c = 0,flag = 0;
 		while(a[c] != '\0'){
 			if(a[c] == '\''){
 				c++;
+				a_count[58]++;
 				continue;
 			}	
-			a_count[a[c]-'a']++;
+			a_count[a[c]-'A']++;
 			c++;
 		}
 		c = 0;	
 		while(b[c] != '\0'){
 			if(b[c] == '\''){
 				c++;
+				b_count[58]++;
 				continue;
 			}	
-			b_count[b[c]-'a']++;
+			b_count[b[c]-'A']++;
 			c++;
 		}
 		c = 0;
-		while(c<26){
+		while(c<59){
 			if(a_count[c]!=b_count[c]){
 				return 0;
 			}
@@ -29,6 +31,37 @@ int checkAnagram(char a[],char b[]){
 		}
 		return 1;
 				
+}
+void quicksort(char **a,int start,int end){
+	int i=start,j=start,k=0;
+	char *pivot = a[end-1];
+	if(start>=end){
+		return;
+	}
+	//i is the pointer for lesser than pivot
+	//j is the pointer for greater than pivot
+	for(k=start;k<end-1;k++){
+		if(strcmp(a[k],pivot)>0){
+			continue;}
+		if(strcmp(a[k],pivot)<=0){
+			char *tmp = a[j];
+			a[j] = a[k];
+			a[k] = tmp;
+			j++;
+			i++;
+		}
+	}
+	if(i+1 != end){
+		char *tmp = a[i];
+		a[i] = a[end-1];
+		a[end-1] = tmp;
+	}
+	else{
+		quicksort(a,start,i);
+		return;
+	}
+	quicksort(a,start,i);
+	quicksort(a,i+1,end);
 }
 int compare(const void *a,const void *b){
 	const char *pa = *(const char**)a;
@@ -56,7 +89,7 @@ int main(){
 		input[i] = malloc(31 * sizeof(char));
 		scanf("%s",input[i]);
 	}
-	qsort((void*)input, N, sizeof(input[0]), compare);
+	quicksort(input,0,N);
 	struct Node *head = malloc(sizeof(struct Node));
 	head->val = input[0];
 	
@@ -89,6 +122,8 @@ int main(){
 				continue;
 			}
 //			printf("here! %s %s \n",input[i],input[j]);
+			if(sizeof(input[i])!=sizeof(input[j]))
+				continue;			
 			int result = checkAnagram(input[i],input[j]);
 			if(result == 1){
 				usage[j]++;
