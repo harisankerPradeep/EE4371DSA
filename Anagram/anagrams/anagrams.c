@@ -72,7 +72,7 @@ int main(){
 		for(int j=i+1;j<N;j++){
 			if(strcmp(sortd[i],sortd[j])==0){
 				count[i]++;
-				
+//				printf("%s,%s \n",input[j],input[i]);				
 				if(flags[i] == 0){
 					fpt++;
 					flags[j] = fpt;
@@ -87,18 +87,18 @@ int main(){
 				if(strcmp(input[j],input[i])<0){
 					swapString(input[i],input[j]);
 				}
-
 			}
 			else{
 				if(strcmp(input[j],input[i])<0){
-					swapString(input[i],input[j]);
-					swapString(sortd[i],sortd[j]);
-					int tmp = flags[i];
-					flags[i] = flags[j];
-					flags[j] = tmp;
-					tmp  = count[i];
-					count[i] = count[j];
-					count[j] = tmp;
+//					printf("swapping for sorting %s,%s \n",input[j],input[i]);				
+//					swapString(input[i],input[j]);
+//					swapString(sortd[i],sortd[j]);
+//					int tmp = flags[i];
+//					flags[i] = flags[j];
+//					flags[j] = tmp;
+//					tmp  = count[i];
+//					count[i] = count[j];
+//					count[j] = tmp;
 				}
 			}
 		}
@@ -120,5 +120,6 @@ int main(){
 			}
 		}
 	}
+	printf("\n");
 	return 0;
 }
