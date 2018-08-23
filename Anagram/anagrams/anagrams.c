@@ -1,60 +1,35 @@
 #include "include/add.h"
-int checkAnagram(char a[],char b[]){
-		int a_count[59] = {0};
-		int b_count[59] = {0};
-		int c = 0,flag = 0;
-		while(a[c] != '\0'){
-			if(a[c] == '\''){
-				c++;
-				a_count[58]++;
-				continue;
-			}	
-			a_count[a[c]-'A']++;
-			c++;
-		}
-		c = 0;	
-		while(b[c] != '\0'){
-			if(b[c] == '\''){
-				c++;
-				b_count[58]++;
-				continue;
-			}	
-			b_count[b[c]-'A']++;
-			c++;
-		}
-		c = 0;
-		while(c<59){
-			if(a_count[c]!=b_count[c]){
-				return 0;
-			}
-			c++;
-		}
-		return 1;
-				
+void swap(char *a, char *b){
+	if(!a || !b)
+	    return;
+	char temp = *(a);
+	*(a) = *(b);
+	*(b) = temp;
 }
-void quicksort(char **a,int start,int end){
+void swapString(char *str1, char *str2){
+	char *temp = (char *)malloc((strlen(str1) + 1) * sizeof(char));
+	strcpy(temp, str1);
+	strcpy(str1, str2);
+	strcpy(str2, temp);
+	free(temp);
+}
+void quicksort(char a[],int start,int end){
 	int i=start,j=start,k=0;
-	char *pivot = a[end-1];
+	char pivot = a[end-1];
 	if(start>=end){
 		return;
 	}
-	//i is the pointer for lesser than pivot
-	//j is the pointer for greater than pivot
 	for(k=start;k<end-1;k++){
-		if(strcmp(a[k],pivot)>0){
+		if(a[k]>pivot){
 			continue;}
-		if(strcmp(a[k],pivot)<=0){
-			char *tmp = a[j];
-			a[j] = a[k];
-			a[k] = tmp;
+		if(a[k]<=pivot){
+			swap(&a[j],&a[k]);
 			j++;
 			i++;
 		}
 	}
 	if(i+1 != end){
-		char *tmp = a[i];
-		a[i] = a[end-1];
-		a[end-1] = tmp;
+		swap(&a[i],&a[end-1]);
 	}
 	else{
 		quicksort(a,start,i);
@@ -62,11 +37,6 @@ void quicksort(char **a,int start,int end){
 	}
 	quicksort(a,start,i);
 	quicksort(a,i+1,end);
-}
-int compare(const void *a,const void *b){
-	const char *pa = *(const char**)a;
-	const char *pb = *(const char**)b;
-	return strcmp(pa,pb);
 }
 struct Sibling{
 	char *val;
@@ -82,89 +52,74 @@ struct Node{
 int main(){
 	int N;
 	char **input;
-	
 	scanf("%d",&N);
 	input = malloc(N * sizeof(char*));
+	char **sortd = malloc(N * sizeof(char*));
 	for(int i = 0; i<N;i++){
 		input[i] = malloc(31 * sizeof(char));
 		scanf("%s",input[i]);
+		char tmp[31];
+		strcpy(tmp,input[i]);	
+		quicksort(tmp,0,strlen(tmp));
+		sortd[i] = malloc(31*sizeof(char));
+		strcpy(sortd[i],tmp);
 	}
-	quicksort(input,0,N);
-	struct Node *head = malloc(sizeof(struct Node));
-	head->val = input[0];
-	
-	int usage[N];
+	int *count = malloc(N*sizeof(int));
+	int *flags = malloc(N*sizeof(int));	
+	int fpt = 0;
+	int total_count = 0;
 	for(int i=0;i<N;i++){
-		usage[i] = 0;
-	}
-	//printf("hello! %d",checkAnagram("acts","cast"));
-	int cnt = 0;
-	struct Node *prev = head;
-	struct Node *node = head;
-	int flag = 0;
-	for(int i=0;i<N;i++){
-		flag = 0;
-		if(i==0){
-			node = head;
-		}
-		else{
-			if(usage[i] != 0){
-				continue;
-			}
-			node = malloc(sizeof(struct Node));
-		       	node->val = input[i];
-			//printf("%s\n\n",prev->val);
-			prev->child = node;
-			prev = node;
-		}
 		for(int j=i+1;j<N;j++){
-			if(usage[j]!=0){
-				continue;
-			}
-//			printf("here! %s %s \n",input[i],input[j]);
-			if(sizeof(input[i])!=sizeof(input[j]))
-				continue;			
-			int result = checkAnagram(input[i],input[j]);
-			if(result == 1){
-				usage[j]++;
-				//printf("%s,%s\n",input[i],input[j]);
-				node->sib_num++;				
-				if(flag==0){
-					cnt++;
-					flag++;
+			if(strcmp(sortd[i],sortd[j])==0){
+				count[i]++;
+//				printf("%s,%s \n",input[j],input[i]);				
+				if(flags[i] == 0){
+					fpt++;
+					flags[j] = fpt;
+					flags[i] = fpt;
+					total_count++;
 				}
-				if(node->sibling_head == NULL){
-					node->sibling_head = malloc(sizeof(struct Sibling));
-					(node->sibling_head)->val = input[j];
-					node->sibling_tail = node->sibling_head;
-					continue;
+				else{
+					if(flags[j] == 0){
+						flags[j] = flags[i];
+					}
 				}
-				struct Sibling *sib = malloc(sizeof(struct Sibling));
-				sib->val = input[j];
-				(node->sibling_tail)->sibling = sib;
-				(node->sibling_tail) = sib;
-					
+				if(strcmp(input[j],input[i])<0){
+					swapString(input[i],input[j]);
+				}
 			}
 			else{
-				continue;
+				if(strcmp(input[j],input[i])<0){
+//					printf("swapping for sorting %s,%s \n",input[j],input[i]);				
+//					swapString(input[i],input[j]);
+//					swapString(sortd[i],sortd[j]);
+//					int tmp = flags[i];
+//					flags[i] = flags[j];
+//					flags[j] = tmp;
+//					tmp  = count[i];
+//					count[i] = count[j];
+//					count[j] = tmp;
+				}
 			}
 		}
-		struct Node *prev = node;
+
 	}
-	node = head;
-	printf("%d",cnt);
-	while(node != NULL){
-		if(node->sib_num == 0){
-			node = node->child;
+
+	printf("%d",total_count);
+	int *done = malloc(total_count*sizeof(int));
+	for(int i=0;i<N;i++){
+		if(flags[i] == 0)
 			continue;
+		if(done[flags[i]] == 1)
+			continue;
+		printf("\n%d\n%s",count[i]+1,input[i]);
+		for(int j=i+1;j<N;j++){
+			if(flags[j] == flags[i]){
+				printf("\n%s",input[j]);
+				done[flags[i]] = 1;
+			}
 		}
-		printf("\n%d\n%s",(node->sib_num+1),node->val);
-		struct Sibling *sib = node->sibling_head;
-		while(sib != NULL){
-		printf("\n%s",sib->val);
-			sib = sib->sibling;
-		}
-		node = node->child;
-	}	
+	}
+	printf("\n");
 	return 0;
 }
