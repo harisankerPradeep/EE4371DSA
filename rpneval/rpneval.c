@@ -6,23 +6,19 @@ struct Node{
 	float val;
 	struct Node *child;
 };
-
 int check(char a[]){
 	int cnt = 0;		
 	char *token = strtok(a," ");
 	while(token != NULL){
 		if (strcmp(token,"+")==0 || strcmp(token,"-")==0 || strcmp(token,"*")==0 || strcmp(token,"/")==0)
 			cnt = cnt -1;
-		
 		else
 			cnt++;
-		
 		if(cnt<=0){
 			printf("ERROR\n");
 			return 0;
 		}
 		token = strtok(NULL," ");
-		
 	}
 	if(cnt==1)
 		return 1;
@@ -34,7 +30,6 @@ int check(char a[]){
 float pop(struct Node** head){
 	struct Node *tmp = *head;
 	*head = ((*head)->child);
-//	printf("popped %.4f\n",(tmp)->val);
 	return (tmp)->val;
 }
 struct Node* push(struct Node* head,float a){//head = push;
@@ -42,7 +37,6 @@ struct Node* push(struct Node* head,float a){//head = push;
 	tmp->val = a;
 	tmp->child = head;
 	head = tmp;
-//	printf("pushed %.4f\n",head->val);
 	return head;
 }
 void solve(char s[]){
@@ -53,8 +47,7 @@ void solve(char s[]){
 	while(token != NULL){
 		
 		if(cnt==0){
-			head->val = (float)atoi(token);
-//			printf("Here%s\n ",token);
+			head->val = (float)atof(token);
 			token = strtok(NULL,delim);
 			cnt++;
 			continue;
@@ -75,15 +68,13 @@ void solve(char s[]){
 					printf("ERROR\n");
 					return;
 				}
-
 		}
 		else{
-			float a = (float) atoi(token);
+			float a = (float) atof(token);
 			head = push(head,a);
 		}
 		token = strtok(NULL,delim);
 		cnt++;
-		
 	}
 	printf("%.4f\n",pop(&head));
 }

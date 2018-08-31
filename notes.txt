@@ -1,0 +1,7 @@
+Why is it called a binary search tree?
+
+For a binary search tree:
+d ~ logN
+insert = o(d) -> O(logN)
+query = O(d)
+
