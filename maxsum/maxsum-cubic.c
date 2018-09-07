@@ -1,6 +1,7 @@
 #include <stdio.h>
+#include <stdlib.h>
 
-int maxsumCubic(int *x, int N) 
+/*int maxsumCubic(int *x, int N) 
 {
     int maxsum = 0;
     for (int i=0; i<N; i++) {
@@ -16,6 +17,31 @@ int maxsumCubic(int *x, int N)
         }
     }
     return maxsum;
+}*/
+int maxsumCubic(int *x, int N) 
+{
+	int start = 0;
+	int end = N-1;
+	for(int i = 0; i<N; i++)
+		if(x[i]>0){
+			start = i;
+			break;
+		}
+	for(int i = N-1; i>=0; i--)
+		if(x[i]>0){
+			end = i;
+			break;
+		}
+	int max_sum = 0;
+	int sum = 0;
+	for(int i= start; i<= end; i++){
+		sum += x[i];
+		if(sum>max_sum)
+			max_sum = sum;
+		if(sum<0)
+			sum = 0;
+	}
+	return max_sum;
 }
 
 int main() 
@@ -23,7 +49,7 @@ int main()
     // Read in the number of values in array as first entry
     int N;
     scanf("%d", &N);
-    int *x = new int[N];
+    int *x = malloc(sizeof(int)*N); 
 
     // Read in the data
     for (int i=0; i<N; i++) {
