@@ -4,7 +4,7 @@
 
 struct Node{
 	float val;
-	struct Node *child;
+	struct Node* child;
 };
 int check(char a[]){
 	int cnt = 0;		
@@ -30,6 +30,7 @@ int check(char a[]){
 float pop(struct Node** head){
 	struct Node *tmp = *head;
 	*head = ((*head)->child);
+	printf("popped %f \n",(tmp)->val);
 	return (tmp)->val;
 }
 struct Node* push(struct Node* head,float a){//head = push;
@@ -37,50 +38,66 @@ struct Node* push(struct Node* head,float a){//head = push;
 	tmp->val = a;
 	tmp->child = head;
 	head = tmp;
+	printf("pushed %f\n",a);
 	return head;
 }
+
 void solve(char s[]){
-	const char delim[2] = " ";
-	char *token = strtok(s,delim);
+	const char delim[1] = " ";
+	char* token; 
+	char* rest = s; 
 	struct Node *head = malloc(sizeof(struct Node));
 	int cnt = 0;
-	while(token != NULL){
-		
+	while((token = strtok_r(rest, " ", &rest))){
+		struct Node* tmp = head;
+		printf("token = %s\n",token);
+		if(cnt>0){
+		while(tmp!=NULL){
+			printf("%f -->",tmp->val);
+			if(tmp->child!=NULL){
+				tmp = (tmp->child);
+			}
+			else{
+				printf("\n");
+				break;}
+		}}
 		if(cnt==0){
 			head->val = (float)atof(token);
-			token = strtok(NULL,delim);
+			head->child = NULL;
 			cnt++;
 			continue;
 		}
 		if (strcmp(token,"+")==0 || strcmp(token,"-")==0 || strcmp(token,"*")==0 || strcmp(token,"/")==0){
 			float b = pop(&head);
 			float a = pop(&head);
+			printf("%f %s %f \n",a,token,b);
 			if(strcmp(token,"+")==0)
-				head = push(head,(float)(a+b));
+				head = push(head,(a+b));
 			if(strcmp(token,"-")==0)
-				head = push(head,(float)(a-b));
+				head = push(head,(a-b));
 			if(strcmp(token,"*")==0)
-				head = push(head,(float)(a*b));
+				head = push(head,(a*b));
 			if(strcmp(token,"/")==0)
 				if(b!=0)
-					head = push(head,(float)(a/b));
+					head = push(head,(a/b));
 				else{
 					printf("ERROR\n");
 					return;
 				}
 		}
 		else{
-			float a = (float) atof(token);
+			float a = atof(token);
 			head = push(head,a);
 		}
-		token = strtok(NULL,delim);
 		cnt++;
+		printf("\n");
+
 	}
 	printf("%.4f\n",pop(&head));
 }
 int main(){
-	char a[256];
-	while (fgets(a, 256, stdin)) {
+	char a[300];
+	while (fgets(a, 300, stdin)) {
 		a[strcspn(a,"\r\n")] = 0;
 		char *tmp = malloc(sizeof(strlen(a)+1));
 		strcpy(tmp,a);
