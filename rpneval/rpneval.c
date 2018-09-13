@@ -45,14 +45,14 @@ void solve(char s[]){
 			double b = pop(&head);
 			double a = pop(&head);
 			if(strcmp(token,"+")==0)
-				head = push(head,(a+b));
+				head = push(head,(double)(a+b));
 			if(strcmp(token,"-")==0)
-				head = push(head,(a-b));
+				head = push(head,(double)(a-b));
 			if(strcmp(token,"*")==0)
-				head = push(head,(a*b));
+				head = push(head,(double)(a*b));
 			if(strcmp(token,"/")==0)
 				if(b!=0)
-					head = push(head,(a/b));
+					head = push(head,(double)(a/b));
 				else{
 					printf("ERROR\n");
 					return;
