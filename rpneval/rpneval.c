@@ -3,98 +3,80 @@
 #include <stdlib.h>
 
 struct Node{
-	float val;
-	struct Node *child;
+	double val;
+	struct Node* child;
 };
-
-int check(char a[]){
-	int cnt = 0;		
-	char *token = strtok(a," ");
-	while(token != NULL){
-		if (strcmp(token,"+")==0 || strcmp(token,"-")==0 || strcmp(token,"*")==0 || strcmp(token,"/")==0)
-			cnt = cnt -1;
-		
-		else
-			cnt++;
-		
-		if(cnt<=0){
-			printf("ERROR\n");
-			return 0;
-		}
-		token = strtok(NULL," ");
-		
-	}
-	if(cnt==1)
-		return 1;
-	else{
-		printf("ERROR\n");
-		return 0;
-	}
-}
-float pop(struct Node** head){
+double pop(struct Node** head){
 	struct Node *tmp = *head;
 	*head = ((*head)->child);
-//	printf("popped %.4f\n",(tmp)->val);
 	return (tmp)->val;
 }
-struct Node* push(struct Node* head,float a){//head = push;
+struct Node* push(struct Node* head,double a){//head = push;
 	struct Node *tmp = malloc(sizeof(struct Node));
 	tmp->val = a;
 	tmp->child = head;
 	head = tmp;
-//	printf("pushed %.4f\n",head->val);
 	return head;
 }
+
 void solve(char s[]){
-	const char delim[2] = " ";
-	char *token = strtok(s,delim);
+	const char delim[1] = " ";
+	char* token; 
+	char* rest = s; 
 	struct Node *head = malloc(sizeof(struct Node));
 	int cnt = 0;
-	while(token != NULL){
+	int n = 0;
+	while((token = strtok_r(rest, " ", &rest))){
+		struct Node* tmp = head;
 		
 		if(cnt==0){
-			head->val = (float)atoi(token);
-//			printf("Here%s\n ",token);
-			token = strtok(NULL,delim);
+			head->val = (double)atof(token);
+			head->child = NULL;
 			cnt++;
+			n++;
 			continue;
 		}
 		if (strcmp(token,"+")==0 || strcmp(token,"-")==0 || strcmp(token,"*")==0 || strcmp(token,"/")==0){
-			float b = pop(&head);
-			float a = pop(&head);
+			n--;
+			if(n<=0){
+				printf("ERROR\n");
+				return;
+			}
+			double b = pop(&head);
+			double a = pop(&head);
 			if(strcmp(token,"+")==0)
-				head = push(head,(float)(a+b));
+				head = push(head,(double)(a+b));
 			if(strcmp(token,"-")==0)
-				head = push(head,(float)(a-b));
+				head = push(head,(double)(a-b));
 			if(strcmp(token,"*")==0)
-				head = push(head,(float)(a*b));
+				head = push(head,(double)(a*b));
 			if(strcmp(token,"/")==0)
 				if(b!=0)
-					head = push(head,(float)(a/b));
+					head = push(head,(double)(a/b));
 				else{
 					printf("ERROR\n");
 					return;
 				}
-
 		}
 		else{
-			float a = (float) atoi(token);
+			double a = atof(token);
 			head = push(head,a);
+			n++;
 		}
-		token = strtok(NULL,delim);
 		cnt++;
-		
+
 	}
-	printf("%.4f\n",pop(&head));
+	if(n==1)
+		printf("%.4f\n",pop(&head));
+	else{
+		printf("ERROR\n");
+		return;
+	}
 }
 int main(){
-	char a[256];
-	while (fgets(a, 256, stdin)) {
+	char a[300];
+	while (fgets(a, 300, stdin)) {
 		a[strcspn(a,"\r\n")] = 0;
-		char *tmp = malloc(sizeof(strlen(a)+1));
-		strcpy(tmp,a);
-		int l = check(a);
-		if(l==1)
-			solve(tmp);
+		solve(a);
 	}
 }
