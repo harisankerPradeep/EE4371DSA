@@ -20,7 +20,6 @@ struct Node* push(struct Node* head,double a){//head = push;
 }
 
 void solve(char s[]){
-	const char delim[1] = " ";
 	char* token; 
 	char* rest = s; 
 	struct Node *head = malloc(sizeof(struct Node));
