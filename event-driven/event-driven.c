@@ -13,16 +13,17 @@ int main(){
 		if((start[i]+duration[i])>max_time)
 			max_time = start[i]+duration[i];
 	}
-	int *t = malloc(sizeof(int)*max_time);
+	int min = start[0];
+	int *t = malloc(sizeof(int)*(max_time-min));
 	
 	int max_task=0;
 	double total=0;
 	for(int i=0;i<N;i++)
 		for(int j=start[i];j<start[i]+duration[i];j++){
-			t[j]++;
+			t[j-min]++;
 			total+=1;
-			if(max_task<t[j])
-				max_task = t[j];
+			if(max_task<t[j-min])
+				max_task = t[j-min];
 		}
 		
 	total = total/max_time;
