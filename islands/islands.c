@@ -221,10 +221,10 @@ void push(int *heap,struct vertex **p,int w,struct vertex *v,int end,int cnt){
 
 	}
 
-	printf("pushing...\n");
-	for(i=0;i<end+1;i++)
-		printf("(%d %s)",heap[i],p[i]->town);
-	printf("\n");
+//	printf("pushing...\n");
+//	for(i=0;i<end+1;i++)
+//		printf("(%d %s)",heap[i],p[i]->town);
+//	printf("\n");
 }
 
 struct vertex* extract(int *heap, struct vertex **p,int end,int cnt){
@@ -260,18 +260,21 @@ struct vertex* extract(int *heap, struct vertex **p,int end,int cnt){
 		else
 			break;
 	}
-	printf("extracting...");
-	for(i=0;i<end-1;i++)
-		printf("(%d %s)",heap[i],p[i]->town);
-	printf("\n");
+//	printf("extracting...");
+//	for(i=0;i<end-1;i++)
+//		printf("(%d %s)",heap[i],p[i]->town);
+//	printf("\n");
 
 	return v;
 
 }
-void dijkstra(struct vertex **h,struct vertex **ve,int *min, struct vertex **cap){
+int dijkstra(struct vertex **h,struct vertex **ve){
 	struct vertex *head = *h;
+	struct vertex *tmph = *h;
 	struct vertex *v = *ve;
-//	printf("here! we do %s\n",v->town);
+	struct vertex *tmpv = *ve;
+	printf("here! we do %s\n",v->town);
+
 	int cnt = 0;
 	while(head!=NULL){
 		if(head->island_number == v->island_number){
@@ -289,7 +292,7 @@ void dijkstra(struct vertex **h,struct vertex **ve,int *min, struct vertex **cap
 //	p[0] = v;
 	v->set = 1;
 	v->set_distance = 0;
-
+	
 	for(int i=0;i<cnt;i++){
 		int f = 0;
 		int d = v->set_distance;
@@ -304,29 +307,22 @@ void dijkstra(struct vertex **h,struct vertex **ve,int *min, struct vertex **cap
 		}
 		v = extract(heap,p,end,cnt);
 		end--;
-		
 	}		
-	head = *h;
+
+
+	head = tmph;
 	int d = 0;
 	while(head!=NULL){
 		if(head->island_number == v->island_number){
-			printf("%s %d",head->town,head->set_distance);
+//			printf("%s %d",head->town,head->set_distance);
 			d += head->set_distance;
 		}
 		head = head->next;	
 	}
-	v = *ve;
-//	printf("\nhere!  %s wit %d\n",v->town,d);
-	if(min[v->island_number-1]>d){
-		min[v->island_number-1] = d;
-		cap[v->island_number-1] = v;
-	}
-	if(min[v->island_number-1]==d){
-		if(strcmp(v->town,(cap[v->island_number-1])->town)<0){
-			min[v->island_number-1] = d;
-			cap[v->island_number-1] = v;
-		}
-	}
+	return d;
+	printf("\nhere!  %s wit %d\n",v->town,d);
+	
+	
 }
 
 
@@ -353,7 +349,6 @@ int main(){
 	is = 0;
 	
 	split(&head);
-	printf("here %s %s \n",head->town,head->next->end->value->town);		
 //	while(head!=NULL){
 //		printf("%s(%d) -->",head->town,head->island_number);
 //		struct neighbor *tmp = head->start;
@@ -368,11 +363,24 @@ int main(){
 
 	int min_distance[is];
 	for(int i=0;i<is;i++)
-		min_distance[i] = INT_MAX;
+		min_distance[i] = INT_MAX-10;
 	struct vertex **capital = malloc(sizeof(struct vertex*)*is);
 	struct vertex *tmp = head;
 	while(tmp!=NULL){
-		dijkstra(&head,&tmp,min_distance,capital);
+		printf("\n mindist \n");
+		for(int i=0;i<is;i++)
+			printf("%d-->",min_distance[i]);
+		int d = dijkstra(&head,&tmp);
+		if(min_distance[(tmp->island_number)-1]>d){
+			min_distance[tmp->island_number-1] = d;
+			capital[tmp->island_number-1] = tmp;
+		}
+		else if(min_distance[tmp->island_number-1]==d){
+			if(strcmp(tmp->town,(capital[tmp->island_number-1])->town)<0){
+				min_distance[tmp->island_number-1] = d;
+				capital[tmp->island_number-1] = tmp;
+			}
+		}
 		tmp = tmp->next;
 	}
 
