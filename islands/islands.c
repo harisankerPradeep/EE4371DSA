@@ -381,7 +381,32 @@ int comparator(const void *p, const void *q){
 	const char *r = *(const char**)q;  
 	return strcmp(l,r); 
 } 
+void swap_str_ptrs(char  **arg1, char  **arg2)
+{
+	     char *tmp = *arg1;
+	        *arg1 = *arg2;
+		    *arg2 = tmp;
+}
 
+void quicksort_strs(char  *args[],  int len)
+{
+	 int i, pvt=0;
+	if (len <= 1)
+		return;
+    // swap a randomly selected value to the last node
+	swap_str_ptrs(args+((unsigned int)rand() % len), args+len-1);
+	for (i=0;i<len-1;++i){
+		if (strcmp(args[i], args[len-1]) < 0)
+			swap_str_ptrs(args+i, args+pvt++);
+	}
+	swap_str_ptrs(args+pvt, args+len-1);
+    // and invoke on the subsequences. does NOT include the pivot-slot
+	quicksort_strs(args, pvt++);
+	quicksort_strs(args+pvt, len - pvt);
+}
+int cmpr(const void *a, const void *b) { 
+	 return strcmp(*(char **)a, *(char **)b);
+}
 
 int main(){
 	int v;
@@ -450,14 +475,10 @@ int main(){
 	char **capital_names = malloc(sizeof(char)*is);
 
 	for(int i=0;i<is;i++){
-		capital_names[i] = malloc(sizeof(char)*20);
-		strcpy(capital_names[i],(capital[i])->town);
+		capital_names[i] = capital[i]->town;
 		printf("%s\n",(capital_names[i]));	
 	}
-
-	int size = sizeof(capital) / sizeof(capital[0]); 
-	printf("size of capitals %d,%d \n",size,is);
-	qsort((void*)capital_names, is, sizeof(capital_names[0]), comparator); 
+	qsort(capital_names, is, sizeof(char *), cmpr);
 	printf("Result \n");
 	for(int i=0;i<is;i++)
 		printf("%s\n",(capital_names[i]));	
