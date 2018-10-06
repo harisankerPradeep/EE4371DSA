@@ -25,22 +25,22 @@ void insert(struct vertex **h,char *o,char *d, int w){
 	struct vertex *head = *h;
 
 	if(head->town==NULL){
-		head->town = malloc(strlen(o)+1);
+		head->town = malloc(20);
 		strcpy(head->town,o);
 
 		struct neighbor *n = malloc(sizeof(struct neighbor));
-		n->town = malloc(strlen(d)+1);
+		n->town = malloc(20+1);
 		strcpy(n->town,d);
 		n->weight = w;
 		head->start = n;
 		head->end = n;
 
 		struct vertex *ne = malloc(sizeof(struct vertex));
-		ne->town = malloc(strlen(d)+1);
+		ne->town = malloc(20+1);
 		strcpy(ne->town,d);
 
 		n = malloc(sizeof(struct neighbor));
-		n->town = malloc(strlen(o)+1);
+		n->town = malloc(20+1);
 		strcpy(n->town,o);
 		n->weight = w;
 		n->value = head;
@@ -61,7 +61,7 @@ void insert(struct vertex **h,char *o,char *d, int w){
 		if(strcmp(head->town,o)==0){
 			flag++;
 			struct neighbor *n = malloc(sizeof(struct neighbor));
-			n->town = malloc(strlen(d)+1);
+			n->town = malloc(20+1);
 			strcpy(n->town,d);
 			n->weight = w;
 			if(jic!=NULL){
@@ -78,7 +78,7 @@ void insert(struct vertex **h,char *o,char *d, int w){
 		if(strcmp(head->town,d)==0){
 			flag++;
 			struct neighbor *n = malloc(sizeof(struct neighbor));
-			n->town = malloc(strlen(o)+1);
+			n->town = malloc(20+1);
 			strcpy(n->town,o);
 			n->weight = w;
 			if(jic!=NULL){
@@ -102,11 +102,11 @@ void insert(struct vertex **h,char *o,char *d, int w){
 	if(flag==1){
 		head = malloc(sizeof(struct vertex));
 		if(entered==2){
-			head->town = malloc(strlen(o)+1);
+			head->town = malloc(20+1);
 			strcpy(head->town,o);
 
 			struct neighbor *n = malloc(sizeof(struct neighbor));
-			n->town = malloc(strlen(d)+1);
+			n->town = malloc(20+1);
 			strcpy(n->town,d);
 			n->weight = w;
 			if(jic!=NULL){
@@ -120,11 +120,11 @@ void insert(struct vertex **h,char *o,char *d, int w){
 			head->end = n;
 		}
 		if(entered==1){
-			head->town = malloc(strlen(d)+1);
+			head->town = malloc(20+1);
 			strcpy(head->town,d);
 
 			struct neighbor *n = malloc(sizeof(struct neighbor));
-			n->town = malloc(strlen(o)+1);
+			n->town = malloc(20+1);
 			strcpy(n->town,o);
 			n->weight = w;
 			if(jic!=NULL){
@@ -144,22 +144,22 @@ void insert(struct vertex **h,char *o,char *d, int w){
 	if(flag==0){
 		head = malloc(sizeof(struct vertex));
 
-		head->town = malloc(strlen(o)+1);
+		head->town = malloc(20+1);
 		strcpy(head->town,o);
 
 		struct neighbor *n = malloc(sizeof(struct neighbor));
-		n->town = malloc(strlen(d)+1);
+		n->town = malloc(20+1);
 		strcpy(n->town,d);
 		n->weight = w;
 		head->start = n;
 		head->end = n;
 
 		struct vertex *ne = malloc(sizeof(struct vertex));
-		ne->town = malloc(strlen(d)+1);
+		ne->town = malloc(20+1);
 		strcpy(ne->town,d);
 
 		n = malloc(sizeof(struct neighbor));
-		n->town = malloc(strlen(o)+1);
+		n->town = malloc(20+1);
 		strcpy(n->town,o);
 		n->weight = w;
 		n->value = head;
@@ -180,7 +180,7 @@ void set_isn(struct vertex *h,int isn){
 	if(h->island_number!=0)
 		return;
 	h->island_number = isn;
-//	printf("setting %s to %d\n",h->town,h->island_number);
+	//printf("setting %s to %d\n",h->town,h->island_number);
 	struct neighbor *tmp = h->start;
 	while(tmp!=NULL){
 		set_isn(tmp->value,isn);
@@ -193,15 +193,16 @@ void push(int *heap,struct vertex **p,int w,struct vertex *v,int end,int cnt){
 
 	int i = end;
 	while(i>0){
-		if(heap[i/2]>heap[i]){
+		int j = (i-1)/2;
+		if(heap[j]>heap[i]){
 			int tmp = heap[i];
-			heap[i] = heap[i/2];
-			heap[i/2] = tmp;
+			heap[i] = heap[j];
+			heap[j] = tmp;
 
 			struct vertex *t = p[i];
-			p[i] = p[i/2];
-			p[i/2] = t;
-			i = i/2;
+			p[i] = p[j];
+			p[j] = t;
+			i = j;
 		}
 		else
 			break;
@@ -302,7 +303,7 @@ struct vertex* extract(int *heap, struct vertex **p,int end,int cnt){
 
 
 	printf("extracting.. (%s,%d) \n",v->town,v->set_distance);
-	for(i=0;i<end;i++)
+	for(i=0;i<end-1;i++)
 		printf("(%d %s)",heap[i],p[i]->town);
 	printf("\n");
 
@@ -336,7 +337,7 @@ int dijkstra(struct vertex **h,struct vertex **ve){
 	v->set = 1;
 	v->set_distance = 0;
 	
-	for(int i=0;i<cnt-1;i++){
+	for(int i=0;i<cnt;i++){
 		int f = 0;
 		int d = v->set_distance;
 		struct neighbor *tmp = v->start;
@@ -352,6 +353,8 @@ int dijkstra(struct vertex **h,struct vertex **ve){
 				else{
 					printf(" %d is replacing %d\n",d+(tmp->weight),tmp->value->current_distance);
 					replace(heap,p,d+(tmp->weight),tmp->value,end,cnt);
+					tmp->value->current_distance = d+(tmp->weight);
+
 				}
 			}
 			tmp = tmp->next;
@@ -364,46 +367,17 @@ int dijkstra(struct vertex **h,struct vertex **ve){
 	int d = 0;
 	while(head!=NULL){
 		if(head->island_number == v->island_number){
-//			printf("%s %d",head->town,head->set_distance);
+			printf("%s %d",head->town,head->set_distance);
 			d += head->set_distance;
 		}
 		head = head->next;	
 	}
 	return d;
-	printf("\nhere!  %s wit %d\n",v->town,d);
+//	printf("\nhere!  %s wit %d\n",v->town,d);
 	
 	
 }
 
-
-int comparator(const void *p, const void *q){ 
-	const char *l =  *(const char**)p;
-	const char *r = *(const char**)q;  
-	return strcmp(l,r); 
-} 
-void swap_str_ptrs(char  **arg1, char  **arg2)
-{
-	     char *tmp = *arg1;
-	        *arg1 = *arg2;
-		    *arg2 = tmp;
-}
-
-void quicksort_strs(char  *args[],  int len)
-{
-	 int i, pvt=0;
-	if (len <= 1)
-		return;
-    // swap a randomly selected value to the last node
-	swap_str_ptrs(args+((unsigned int)rand() % len), args+len-1);
-	for (i=0;i<len-1;++i){
-		if (strcmp(args[i], args[len-1]) < 0)
-			swap_str_ptrs(args+i, args+pvt++);
-	}
-	swap_str_ptrs(args+pvt, args+len-1);
-    // and invoke on the subsequences. does NOT include the pivot-slot
-	quicksort_strs(args, pvt++);
-	quicksort_strs(args+pvt, len - pvt);
-}
 int cmpr(const void *a, const void *b) { 
 	 return strcmp(*(char **)a, *(char **)b);
 }
@@ -451,9 +425,6 @@ int main(){
 	struct vertex **capital = malloc(sizeof(struct vertex*)*is);
 	struct vertex *tmp = head;
 	while(tmp!=NULL){
-		printf("\n mindist \n");
-		for(int i=0;i<is;i++)
-			printf("%d-->",min_distance[i]);
 		int d = dijkstra(&head,&tmp);
 		printf("finished dijkstras of %s isn %d  with %d\n",tmp->town,tmp->island_number,d);
 		printf("new calculated = %d; existing =%d \n",d,min_distance[(tmp->island_number)-1]);
@@ -471,12 +442,11 @@ int main(){
 		}
 		tmp = tmp->next;
 	}
-	printf("Result \n");
-	char **capital_names = malloc(sizeof(char)*is);
-
+//	printf("Result \n");
+	char **capital_names = malloc(sizeof(char *)*is);
 	for(int i=0;i<is;i++){
 		capital_names[i] = capital[i]->town;
-		printf("%s\n",(capital_names[i]));	
+//		printf("%s\n",(capital_names[i]));	
 	}
 	qsort(capital_names, is, sizeof(char *), cmpr);
 	printf("Result \n");
