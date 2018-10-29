@@ -209,10 +209,10 @@ void push(int *heap,struct vertex **p,int w,struct vertex *v,int end,int cnt){
 
 	}
 
-	printf("pushing... %s \n",v->town);
-	for(i=0;i<end+1;i++)
-		printf("(%d %s)",heap[i],p[i]->town);
-	printf("\n");
+//	printf("pushing... %s \n",v->town);
+//	for(i=0;i<end+1;i++)
+//		printf("(%d %s)",heap[i],p[i]->town);
+//	printf("\n");
 }
 void replace(int *heap,struct vertex **p,int w,struct vertex *v,int end,int cnt){
 	int i = 0;
@@ -239,10 +239,10 @@ void replace(int *heap,struct vertex **p,int w,struct vertex *v,int end,int cnt)
 
 	}
 
-	printf("replacing... %s \n",v->town);
-	for(i=0;i<end;i++)
-		printf("(%d %s)",heap[i],p[i]->town);
-	printf("\n");
+//	printf("replacing... %s \n",v->town);
+//	for(i=0;i<end;i++)
+//		printf("(%d %s)",heap[i],p[i]->town);
+//	printf("\n");
 }
 struct vertex* extract(int *heap, struct vertex **p,int end,int cnt){
 	struct vertex *v = p[0];
@@ -302,10 +302,10 @@ struct vertex* extract(int *heap, struct vertex **p,int end,int cnt){
 	}
 
 
-	printf("extracting.. (%s,%d) \n",v->town,v->set_distance);
-	for(i=0;i<end-1;i++)
-		printf("(%d %s)",heap[i],p[i]->town);
-	printf("\n");
+//	printf("extracting.. (%s,%d) \n",v->town,v->set_distance);
+//	for(i=0;i<end-1;i++)
+//		printf("(%d %s)",heap[i],p[i]->town);
+//	printf("\n");
 
 	return v;
 
@@ -315,7 +315,7 @@ int dijkstra(struct vertex **h,struct vertex **ve){
 	struct vertex *tmph = *h;
 	struct vertex *v = *ve;
 	struct vertex *tmpv = *ve;
-	printf("here! we do %s\n",v->town);
+//	printf("here! we do %s\n",v->town);
 
 	int cnt = 0;
 	while(head!=NULL){
@@ -351,7 +351,7 @@ int dijkstra(struct vertex **h,struct vertex **ve){
 					tmp->value->current_distance = d+(tmp->weight);
 				}
 				else{
-					printf(" %d is replacing %d\n",d+(tmp->weight),tmp->value->current_distance);
+//					printf(" %d is replacing %d\n",d+(tmp->weight),tmp->value->current_distance);
 					replace(heap,p,d+(tmp->weight),tmp->value,end,cnt);
 					tmp->value->current_distance = d+(tmp->weight);
 
@@ -367,7 +367,7 @@ int dijkstra(struct vertex **h,struct vertex **ve){
 	int d = 0;
 	while(head!=NULL){
 		if(head->island_number == v->island_number){
-			printf("%s %d",head->town,head->set_distance);
+//			printf("%s %d",head->town,head->set_distance);
 			d += head->set_distance;
 		}
 		head = head->next;	
@@ -408,14 +408,14 @@ int main(){
 	}
 	head = tmph;
 	while(head!=NULL){
-		printf("%s(%d) -->",head->town,head->island_number);
+//		printf("%s(%d) -->",head->town,head->island_number);
 		struct neighbor *tmp = head->start;
 
 		while(tmp!=NULL){
-			printf("%s-%d->",tmp->town,tmp->weight);
+//			printf("%s-%d->",tmp->town,tmp->weight);
 			tmp = tmp->next;
 		}
-		printf("\n");
+//		printf("\n");
 		head = head->next;
 	}
 	head = tmph;
@@ -426,18 +426,18 @@ int main(){
 	struct vertex *tmp = head;
 	while(tmp!=NULL){
 		int d = dijkstra(&head,&tmp);
-		printf("finished dijkstras of %s isn %d  with %d\n",tmp->town,tmp->island_number,d);
-		printf("new calculated = %d; existing =%d \n",d,min_distance[(tmp->island_number)-1]);
+//		printf("finished dijkstras of %s isn %d  with %d\n",tmp->town,tmp->island_number,d);
+//		printf("new calculated = %d; existing =%d \n",d,min_distance[(tmp->island_number)-1]);
 		if(min_distance[(tmp->island_number)-1]>d){
 			min_distance[tmp->island_number-1] = d;
 			capital[tmp->island_number-1] = tmp;
-			printf("capital replacement of island %d with %s",tmp->island_number,tmp->town);
+//			printf("capital replacement of island %d with %s",tmp->island_number,tmp->town);
 		}
 		else if(min_distance[tmp->island_number-1]==d){
 			if(strcmp(tmp->town,(capital[tmp->island_number-1])->town)<0){
 				min_distance[tmp->island_number-1] = d;
 				capital[tmp->island_number-1] = tmp;
-				printf("capital replacement of island %d with %s",tmp->island_number,tmp->town);
+//				printf("capital replacement of island %d with %s",tmp->island_number,tmp->town);
 			}
 		}
 		tmp = tmp->next;
@@ -449,7 +449,7 @@ int main(){
 //		printf("%s\n",(capital_names[i]));	
 	}
 	qsort(capital_names, is, sizeof(char *), cmpr);
-	printf("Result \n");
+//	printf("Result \n");
 	for(int i=0;i<is;i++)
 		printf("%s\n",(capital_names[i]));	
 	return 0;
