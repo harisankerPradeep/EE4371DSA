@@ -82,18 +82,17 @@ int main(){
 			cnt++;
 		}
 
-	for(int i = 0;i<size;i++)
-		printf("%d-->%d : %d \n",e[i]->a,e[i]->b,e[i]->weight);
+//	for(int i = 0;i<size;i++)
+//		printf("%d-->%d : %d \n",e[i]->a,e[i]->b,e[i]->weight);
 	
 	qsort((void*)e, size, sizeof(struct edges*), comparator); 	
-	printf("-------------------------\n");
-	for(int i = 0;i<size;i++)
-		printf("%d-->%d : %d \n",e[i]->a,e[i]->b,e[i]->weight);
+//	printf("-------------------------\n");
+//	for(int i = 0;i<size;i++)
+//		printf("%d-->%d : %d \n",e[i]->a,e[i]->b,e[i]->weight);
 
 	// Performing Kruskal's	
 	int numOfedges = 0;
 		
-	while(numOfedges<t){
 		for(int i=0;i<size;i++){
 			struct edges* p = e[i];
 			chosenEdges[i]++;
@@ -106,6 +105,7 @@ int main(){
 			if(n[p->a]==NULL){
 				n[p->a] = malloc(sizeof(struct neighbor));
 				n[p->a]->pos = p->b;
+				n[p->a]->next = NULL;
 			}
 			else{
 //				printf("here!i\n");
@@ -118,7 +118,9 @@ int main(){
 				}
 				head = malloc(sizeof(struct neighbor));
 				head->pos = p->b;
+				head->next = NULL;
 				prev->next = head;
+
 //				head = n[p->a];
 //				while(head!=NULL){
 //					printf("%d %d\n",p->a,head->pos);
@@ -129,6 +131,7 @@ int main(){
 			if(n[p->b]==NULL){
 				n[p->b] = malloc(sizeof(struct neighbor));
 				n[p->b]->pos = p->a;
+				n[p->b]->next = NULL;
 			}
 			else{
 //				printf("here!i\n");
@@ -140,27 +143,31 @@ int main(){
 				}
 				head = malloc(sizeof(struct neighbor));
 				head->pos = p->a;
+				head->next = NULL;
 				prev->next = head;
 			}			
 			set[p->a]++;
 			set[p->b]++;
 			numOfedges++;
-			printf(" number %d \n",numOfedges);
-			for(int j=0;j<t+1;j++){
-				printf("%d \n",j);
-				head = n[j];
-				if(n[j]==NULL){
-					printf("no neighbors yet\n");
-					continue;
-				}
-				while(head!=NULL){
-					printf("%d %d\n",j,head->pos);
-					head = head->next;
-				}
-			}
+			if(numOfedges==t)
+				break;
+//			printf(" number %d \n",numOfedges);
+//			for(int j=0;j<t+1;j++){
+//				printf("%d \n",j);
+//				head = n[j];
+//				if(n[j]==NULL){
+//					printf("no neighbors yet\n");
+//					continue;
+//				}
+//				while(head!=NULL){
+//					printf("%d %d\n",j,head->pos);
+//					head = head->next;
+//				}
+//			}
 		}
 		//print result of kruskal
 		int len = 0;
+		printf("%d\n",t);
 		for(int i=0;i<size;i++){
 			if(chosenEdges[i]==0)
 				continue;
@@ -169,5 +176,4 @@ int main(){
 			len += x->weight;
 		}
 		printf("total weight: %d %d",len,numOfedges);
-	}	
 }
