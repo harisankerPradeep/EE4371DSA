@@ -73,4 +73,7 @@ int main () {
 		printf("\n");
 		current = current * rcur;
 	}	
+
+
+
 }
