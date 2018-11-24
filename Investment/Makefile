@@ -9,7 +9,7 @@ DEPS = include/%.h
 #Object files to build and link to obtain target executable
 OBJ = investmentsample.o
 #Name of target executable
-TARGET = investmentsample
+TARGET = investmentsample 
 
 #Creates object files
 %.o: %.c $(DEPS)
@@ -32,3 +32,7 @@ clean:
 #Test-runs the executable
 test: $(TARGET)
 	./$(TARGET) < input.txt > output.txt
+
+archive: clean
+	@tar -czf ../dsa-submit.tgz -C .. `basename ${PWD}`
+	@echo "Created the archive file ../dsa-submit.tgz.  Please submit to Moodle."

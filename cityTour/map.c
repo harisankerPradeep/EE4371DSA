@@ -3,6 +3,8 @@
 #include <string.h>
 #include <limits.h>
 
+// Perform dijkstras on each cities till the next city is reached
+
 struct Node{
 	double lat;
 	double lon;
@@ -28,7 +30,7 @@ struct Edge{
 };
 //variable noting end pos of heap
 int end = 1;
-void extract(double *heap, int *p, struct Node **nodes){
+void extract(double *heap, int *p, struct Node **nodes){//to extract min from heap
 	if(end==1){
 		end--;
 		return;
@@ -109,7 +111,7 @@ void extract(double *heap, int *p, struct Node **nodes){
 
 	}
 }
-void add(double *heap, int *p, struct Node **nodes, int dst, double d){
+void add(double *heap, int *p, struct Node **nodes, int dst, double d){//to add values to heap
 	heap[end] = d;	
 	p[end] = dst;
 	nodes[dst]->heap_pos = end;
@@ -136,7 +138,7 @@ void add(double *heap, int *p, struct Node **nodes, int dst, double d){
 	}
 	nodes[dst]->added_to_heap = 1;	
 }
-void replace(double *heap, int *p, struct Node **nodes, int dst, double d){
+void replace(double *heap, int *p, struct Node **nodes, int dst, double d){//To update values in the heap
 	int i = nodes[dst]->heap_pos;
 	heap[i] = d;	
 	while(i>0){
@@ -159,7 +161,7 @@ void replace(double *heap, int *p, struct Node **nodes, int dst, double d){
 		}
 	}
 }
-void dijkstras(int n,int src, int dst, struct Node **nodes, struct Edge **edges){
+void dijkstras(int n,int src, int dst, struct Node **nodes, struct Edge **edges){//To perform dijkstras
 	end = 1;
 //	set all nodes as it's parent	
 	for(int i=0;i<n;i++){

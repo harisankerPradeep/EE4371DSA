@@ -180,7 +180,7 @@ void set_isn(struct vertex *h,int isn){
 	if(h->island_number!=0)
 		return;
 	h->island_number = isn;
-	//printf("setting %s to %d\n",h->town,h->island_number);
+//	printf("setting %s to %d\n",h->town,h->island_number);
 	struct neighbor *tmp = h->start;
 	while(tmp!=NULL){
 		set_isn(tmp->value,isn);
@@ -224,15 +224,15 @@ void replace(int *heap,struct vertex **p,int w,struct vertex *v,int end,int cnt)
 	p[i] = v;
 
 	while(i>0){
-		if(heap[i/2]>heap[i]){
+		if(heap[(i-1)/2]>heap[i]){
 			int tmp = heap[i];
-			heap[i] = heap[i/2];
-			heap[i/2] = tmp;
+			heap[i] = heap[(i-1)/2];
+			heap[(i-1)/2] = tmp;
 
 			struct vertex *t = p[i];
-			p[i] = p[i/2];
-			p[i/2] = t;
-			i = i/2;
+			p[i] = p[(i-1)/2];
+			p[(i-1)/2] = t;
+			i = (i-1)/2;
 		}
 		else
 			break;

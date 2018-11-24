@@ -3,8 +3,8 @@
 #include <string.h>
 #include <limits.h>
 
-//Don't forget explanations
-
+// For the first year invest all the money in the plan with max intrest
+// For subsequent years take a greedy approach
 int main () {
 	int t,n,f;
 	double s;
@@ -73,7 +73,5 @@ int main () {
 		printf("\n");
 		current = current * rcur;
 	}	
-
-
 
 }
