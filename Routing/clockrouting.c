@@ -12,7 +12,10 @@ struct edges{
 	int a;
 	int b;
 };
-
+struct subset{
+	int parent;
+	int rank;
+};
 int comparator(const void *p, const void *q){
 	struct edges *a = *(struct edges**)p;
 	struct edges *b = *(struct edges**)q;
@@ -20,31 +23,70 @@ int comparator(const void *p, const void *q){
 	int r = b->weight;  
 	return (l - r); 
 } 
-int find(int *p,int x){
-	if(p[x]==-1)	
-		return x;
-	else
-		find(p,p[x]);
+int find(struct subset **subsets,int i){
+//	if(p[x]==-1)	
+//		return x;
+//	else
+//		find(p,p[x]);
+
+	if(subsets[i]->parent!=i)
+		subsets[i]->parent = find(subsets,subsets[i]->parent);
+	return subsets[i]->parent;
 }
 
+void Union(struct subset **subsets,int x,int y){
+	int xroot = find(subsets,x);
+	int yroot = find(subsets,y);
+
+	if(subsets[xroot]->rank<subsets[yroot]->rank)
+		subsets[xroot]->parent = yroot;
+	else if(subsets[xroot]->rank > subsets[yroot]->rank)
+		subsets[yroot]->parent = xroot;
+	else{
+		subsets[yroot]->parent = xroot;
+		subsets[xroot]->rank++;
+	}
+}
 int detectCycles(struct edges **e, int *chosenEdges, int t, int size){
-	int *p = malloc(sizeof(int)*(t+1));
-	for(int i=0;i<t+1;i++)
-		p[i] = -1;
+//	int *p = malloc(sizeof(int)*(t+1));
+//	for(int i=0;i<t+1;i++)
+//		p[i] = -1;
+//	for(int i=0;i<size;i++){
+//		if(chosenEdges[i]==0)
+//			continue;
+//		struct edges *x = e[i];
+//		if(find(p,x->a)==find(p,x->b))
+//			return 1;
+//		else{
+//			int xset = find(p,x->a);
+//			int yset = find(p,x->b);
+//			p[xset]=yset;
+//		}
+//	}
+//	return 0;
+	
+	struct subset **subsets = malloc((t+1)*sizeof(struct subset*));
+
+	for(int i=0;i<t+1;i++){
+		subsets[i] = malloc(sizeof(struct subset));
+		subsets[i]->parent = i;
+		subsets[i]->rank = 0;
+	}
+
 	for(int i=0;i<size;i++){
 		if(chosenEdges[i]==0)
 			continue;
-		struct edges *x = e[i];
-		if(find(p,x->a)==find(p,x->b))
+		int x = find(subsets,e[i]->a);
+		int y = find(subsets,e[i]->b);
+
+		if(x == y)
 			return 1;
-		else{
-			int xset = find(p,x->a);
-			int yset = find(p,x->b);
-			p[xset]=yset;
-		}
+		
+		Union(subsets,x,y);
 	}
 	return 0;
 }
+
 int main(){
 	int h;
 	int b;
@@ -175,5 +217,5 @@ int main(){
 			printf("%d %d\n",x->a,x->b);
 			len += x->weight;
 		}
-		printf("total weight: %d %d",len,numOfedges);
+//		printf("total weight: %d %d",len,numOfedges);
 }
