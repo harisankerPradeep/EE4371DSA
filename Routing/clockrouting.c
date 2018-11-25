@@ -3,90 +3,239 @@
 #include <string.h>
 #include <limits.h>
 
-struct neighbor{
-	int pos;
-	struct neighbor *next;
-};
-struct edges{
-	int weight;
-	int a;
-	int b;
-};
-struct subset{
+// Perform dijkstras on each cities till the next city is reached
+
+struct Node{
+	double lat;
+	double lon;
+	struct Neighbor *head;
+	struct Neighbor *tail;
+	int set;
 	int parent;
-	int rank;
+	double current_distance;
+	double set_distance;
+	int added_to_heap;
+	int heap_pos;
 };
-int comparator(const void *p, const void *q){
-	struct edges *a = *(struct edges**)p;
-	struct edges *b = *(struct edges**)q;
-	int l = a->weight; 
-	int r = b->weight;  
-	return (l - r); 
-} 
-int find(struct subset **subsets,int i){
-//	if(p[x]==-1)	
-//		return x;
-//	else
-//		find(p,p[x]);
+struct Neighbor{
+	int dst;
+	int e;
+	struct Neighbor *next;
+};
+struct Edge{
+	char type;
+	int src;
+	int dst;
+	double distance;
+};
+//variable noting end pos of heap
+int end = 1;
+void extract(double *heap, int *p, struct Node **nodes){//to extract min from heap
+	if(end==1){
+		end--;
+		return;
+	}
+	if(end<1){
+		return;
+	}
+	// Move the last element of the heap to the first position
+	p[0] = p[end-1];
+	heap[0] = heap[end-1];
+	nodes[p[end-1]]->heap_pos = 0;
+	heap[end-1] = INT_MAX;
+	end--;
+	int i=0;
+	while(i<end){
+		int a = (2*i)+1;
+		int b = (2*i)+2;
+		if(a>end || b>end)
+			break;
+		if(heap[i]>heap[a] && heap[i]>heap[b]){
+			if(heap[a]<=heap[b]){
+				double tmp = heap[a];
+				heap[a] = heap[i];
+				heap[i] = tmp;
 
-	if(subsets[i]->parent!=i)
-		subsets[i]->parent = find(subsets,subsets[i]->parent);
-	return subsets[i]->parent;
-}
+				int t = p[i];
+				p[i] = p[a];
+				p[a] = t;
+				nodes[p[i]]->heap_pos = i;
+				nodes[p[a]]->heap_pos = a;
 
-void Union(struct subset **subsets,int x,int y){
-	int xroot = find(subsets,x);
-	int yroot = find(subsets,y);
+				i = a;
+			}
+			else{
+				double tmp = heap[b];
+				heap[b] = heap[i];
+				heap[i] = tmp;
 
-	if(subsets[xroot]->rank<subsets[yroot]->rank)
-		subsets[xroot]->parent = yroot;
-	else if(subsets[xroot]->rank > subsets[yroot]->rank)
-		subsets[yroot]->parent = xroot;
-	else{
-		subsets[yroot]->parent = xroot;
-		subsets[xroot]->rank++;
+				int t = p[i];
+				p[i] = p[b];
+				p[b] = t;
+				nodes[p[i]]->heap_pos = i;
+				nodes[p[b]]->heap_pos = b;
+
+				
+				i = b;
+			}
+		}
+		else if(heap[i]>heap[a] && heap[i]<=heap[b]){
+			double tmp = heap[a];
+			heap[a] = heap[i];
+			heap[i] = tmp;
+
+			int t = p[i];
+			p[i] = p[a];
+			p[a] = t;
+			nodes[p[i]]->heap_pos = i;
+			nodes[p[a]]->heap_pos = a;
+
+
+			i = a;
+		}
+		else if(heap[i]>heap[b] && heap[i]<=heap[a]){
+			double tmp = heap[b];
+			heap[b] = heap[i];
+			heap[i] = tmp;
+
+			int t = p[i];
+			p[i] = p[b];
+			p[b] = t;
+			nodes[p[i]]->heap_pos = i;
+			nodes[p[b]]->heap_pos = b;
+
+
+			i = b;
+		}
+		else{
+			break;
+		}
+
 	}
 }
-int detectCycles(struct edges **e, int *chosenEdges, int t, int size){
-//	int *p = malloc(sizeof(int)*(t+1));
-//	for(int i=0;i<t+1;i++)
-//		p[i] = -1;
-//	for(int i=0;i<size;i++){
-//		if(chosenEdges[i]==0)
-//			continue;
-//		struct edges *x = e[i];
-//		if(find(p,x->a)==find(p,x->b))
-//			return 1;
-//		else{
-//			int xset = find(p,x->a);
-//			int yset = find(p,x->b);
-//			p[xset]=yset;
-//		}
-//	}
-//	return 0;
+void add(double *heap, int *p, struct Node **nodes, int dst, double d){//to add values to heap
+	heap[end] = d;	
+	p[end] = dst;
+	nodes[dst]->heap_pos = end;
+	int i = end;
+       	end++;
+	while(i>0){
+		int a = (i-1)/2;
+		if(heap[a]>heap[i]){
+			double tmp = heap[a];
+			heap[a] = heap[i];
+			heap[i] = tmp;
+
+			int t = p[a];
+			p[a] = p[i];
+			p[i] = t;
+			nodes[p[a]]->heap_pos = a;
+			nodes[p[i]]->heap_pos = i;
+			
+			i = a;
+		}
+		else{
+			break;
+		}
+	}
+	nodes[dst]->added_to_heap = 1;	
+}
+void replace(double *heap, int *p, struct Node **nodes, int dst, double d){//To update values in the heap
+	int i = nodes[dst]->heap_pos;
+	heap[i] = d;	
+	while(i>0){
+		int a = (i-1)/2;
+		if(heap[a]>heap[i]){
+			double tmp = heap[a];
+			heap[a] = heap[i];
+			heap[i] = tmp;
+
+			int t = p[a];
+			p[a] = p[i];
+			p[i] = t;
+			nodes[p[i]]->heap_pos = i;
+			nodes[p[a]]->heap_pos = a;
+
+			i = a;
+		}
+		else{
+			break;
+		}
+	}
+}
+void dijkstras(int n,int src, int dst, struct Node **nodes, struct Edge **edges){//To perform dijkstras
+	end = 1;
+	printf("%d\n",n-1);
+//	set all nodes as it's parent	
+	for(int i=0;i<n;i++){
+		nodes[i]->parent = i;
+		nodes[i]->set = 0;
+		nodes[i]->current_distance = INT_MAX;
+	       	nodes[i]->set_distance = INT_MAX;
+		nodes[i]->heap_pos = INT_MAX;
+		nodes[i]->added_to_heap = 0;
+	}
 	
-	struct subset **subsets = malloc((t+1)*sizeof(struct subset*));
-
-	for(int i=0;i<t+1;i++){
-		subsets[i] = malloc(sizeof(struct subset));
-		subsets[i]->parent = i;
-		subsets[i]->rank = 0;
-	}
-
-	for(int i=0;i<size;i++){
-		if(chosenEdges[i]==0)
-			continue;
-		int x = find(subsets,e[i]->a);
-		int y = find(subsets,e[i]->b);
-
-		if(x == y)
-			return 1;
+//	create a heap and array to point nodes from heap positions
+	double *heap = malloc(sizeof(double)*n);
+	int *p = malloc(sizeof(int)*n);
+	for(int i=0;i<n;i++){
+		heap[i] = INT_MAX;
+		p[i] = INT_MAX;
+	}	
+// 	set src distance to 0 and its position in heap 0
+	heap[0] = 0;
+	p[src] = src;
+	int tmp = p[src];
+	p[src] = p[0];
+	p[0] = tmp;
+	nodes[src]->added_to_heap = 1;
+	int reached = 0;
+	int total = 0;
+	for(int foo=0;foo<n;foo++){
+	// get the nearest node from heap
+		double min_d = heap[0];
+		total += min_d;
+		int min_p = p[0];
+		extract(heap,p,nodes);		
+//		printf("extracted node %d end:%d heap_pos:%d \n",min_p,end,nodes[min_p]->heap_pos);
 		
-		Union(subsets,x,y);
+		// Relax the nearest node
+		struct Node *a = nodes[min_p];
+		struct Neighbor *head = a->head;
+		a->set = 1;
+		if(min_d!= a->current_distance)
+			//printf("ERROR: %lf\n",(min_d-(a->current_distance)));
+		a->set_distance = min_d;
+		if(foo!=0)
+			printf("%d %d\n",min_p,a->parent);
+		while(head!=NULL){
+			int e = head->e;
+			double d = edges[e]->distance;
+			int pos = head->dst;
+			//printf(" considering %d --> %d",min_p,pos); 
+			if(nodes[pos]->set!=0){
+				head = head->next;
+				continue;
+			}
+			if(min_d+d<=nodes[pos]->current_distance){
+				nodes[pos]->parent = min_p;
+				nodes[pos]->current_distance = min_d + d;
+				if(nodes[pos]->added_to_heap==0){
+					add(heap,p,nodes,pos,min_d+d);
+					//printf("added %d end: %d\n",pos,end);
+				}
+				else{
+					replace(heap,p,nodes,pos,min_d+d);		
+					//printf("updating %d\n",pos);	
+				}
+			}
+			head = head->next;
+		}
 	}
-	return 0;
+	printf("Total distance:%d\n",total);
+	
 }
-
 int main(){
 	int h;
 	int b;
@@ -97,125 +246,98 @@ int main(){
 	scanf("%d %d",&x1,&y1);
 	int t;
 	scanf("%d",&t);
-	int *x = malloc(sizeof(int)*(t+1));
-	int *y = malloc(sizeof(int)*(t+1));
-	int *set = malloc(sizeof(int)*(t+1));
-	struct neighbor **n = malloc(sizeof(struct neighbor*)*(t+1));
-	x[0] = x1;
-	y[0] = y1;
-	set[0] = 0;
+	int n = t+1;
+	struct Node **nodes = malloc(sizeof(struct Node*)*(t+1));
+	nodes[0] = malloc(sizeof(struct Node));
+	nodes[0]->lat = x1;
+	nodes[0]->lon = y1;
 	for(int i = 1;i<t+1; i++){
-		scanf("%d %d",&x[i],&y[i]);	
-		set[i] = 0;
+		nodes[i] = malloc(sizeof(struct Node));
+		scanf("%d %d",&x1,&y1);	
+		nodes[i]->lat = x1;
+		nodes[i]->lon = y1;
 	}
 
-	//To perform kruskal's
 	int size = (int)((t*(t+1))/2);
-	struct edges **e = malloc(sizeof(struct edges*)*(size));
+	struct Edge **edges = malloc(sizeof(struct edges*)*(size));
 	int cnt = 0;
 	int *chosenEdges = malloc(sizeof(int)*(size));
 	for(int i = 0;i<t+1;i++)
 		for(int j=i+1;j<t+1;j++){
-			e[cnt] = malloc(sizeof(struct edges));
-			e[cnt]->weight = abs(x[i]-x[j])+abs(y[i]-y[j]);
-			e[cnt]->a = i;
-			e[cnt]->b = j;
-			chosenEdges[cnt] = 0;
-			cnt++;
-		}
-
-//	for(int i = 0;i<size;i++)
-//		printf("%d-->%d : %d \n",e[i]->a,e[i]->b,e[i]->weight);
+		edges[cnt] = malloc(sizeof(struct Edge));
+		edges[cnt]->src = i;
+		edges[cnt]->dst = j;
+		edges[cnt]->distance = abs(nodes[i]->lat - nodes[j]->lat) + abs(nodes[i]->lon - nodes[j]->lon);
 	
-	qsort((void*)e, size, sizeof(struct edges*), comparator); 	
-//	printf("-------------------------\n");
-//	for(int i = 0;i<size;i++)
-//		printf("%d-->%d : %d \n",e[i]->a,e[i]->b,e[i]->weight);
-
-	// Performing Kruskal's	
-	int numOfedges = 0;
-		
-		for(int i=0;i<size;i++){
-			struct edges* p = e[i];
-			chosenEdges[i]++;
-			if(detectCycles(e,chosenEdges,t,size)==1){
-				chosenEdges[i]--;
-				continue;
-			}
-			struct neighbor *head;
-			
-			if(n[p->a]==NULL){
-				n[p->a] = malloc(sizeof(struct neighbor));
-				n[p->a]->pos = p->b;
-				n[p->a]->next = NULL;
-			}
-			else{
-//				printf("here!i\n");
-				head = n[p->a];
-				struct neighbor *prev;
-				while(head!=NULL && prev!=NULL){
-					prev = head;
-					head = head->next;
-					
-				}
-				head = malloc(sizeof(struct neighbor));
-				head->pos = p->b;
-				head->next = NULL;
-				prev->next = head;
-
-//				head = n[p->a];
-//				while(head!=NULL){
-//					printf("%d %d\n",p->a,head->pos);
-//					head = head->next;
-//				}
-			}
-			
-			if(n[p->b]==NULL){
-				n[p->b] = malloc(sizeof(struct neighbor));
-				n[p->b]->pos = p->a;
-				n[p->b]->next = NULL;
-			}
-			else{
-//				printf("here!i\n");
-				head = n[p->b];
-				struct neighbor *prev;
-				while(head!=NULL){
-					prev = head;
-					head = head->next;
-				}
-				head = malloc(sizeof(struct neighbor));
-				head->pos = p->a;
-				head->next = NULL;
-				prev->next = head;
-			}			
-			set[p->a]++;
-			set[p->b]++;
-			numOfedges++;
-			if(numOfedges==t)
-				break;
-//			printf(" number %d \n",numOfedges);
-//			for(int j=0;j<t+1;j++){
-//				printf("%d \n",j);
-//				head = n[j];
-//				if(n[j]==NULL){
-//					printf("no neighbors yet\n");
-//					continue;
-//				}
-//				while(head!=NULL){
-//					printf("%d %d\n",j,head->pos);
-//					head = head->next;
-//				}
+		//for src 
+		int src = edges[cnt]->src;
+		int dst = edges[cnt]->dst;
+		if(nodes[src]->head==NULL){
+			struct Neighbor *n = malloc(sizeof(struct Neighbor));
+			n->dst = dst;
+			n->e = cnt;
+			nodes[src]->head = n;
+			nodes[src]->tail = n;
+//			struct Neighbor *h = nodes[src]->head;
+//			printf("start here %d : ",src);
+//			while(h!=NULL){
+//				printf("%d-->",h->dst);
+//				h = h->next;
 //			}
+//			printf("\n");
 		}
-		//print result of kruskal
-		int len = 0;
-		printf("%d\n",t);
-		for(int i=0;i<size;i++){
-			if(chosenEdges[i]==0)
-				continue;
-			struct edges *x = e[i];
-			printf("%d %d\n",x->a,x->b);
-			len += x->weight;
+		else{
+			struct Neighbor *n = malloc(sizeof(struct Neighbor));
+			n->dst = dst;
+			n->e = cnt;
+			(nodes[src]->tail)->next = n;
+			nodes[src]->tail = n;
+//			struct Neighbor *h = nodes[src]->head;
+//			printf("%d : ",src);
+//			while(h!=NULL){
+//				printf("%d-->",h->dst);
+//				h = h->next;
+//			}
+//			printf("\n");
 		}
-//		printf("total weight: %d %d",len,numOfedges);
+		//for dst	
+		if(nodes[dst]->head==NULL){
+			struct Neighbor *n = malloc(sizeof(struct Neighbor));
+			n->dst = src;
+			n->e = cnt;
+			nodes[dst]->head = n;
+			nodes[dst]->tail = n;
+//			struct Neighbor *h = nodes[dst]->head;
+//			printf("start here %d : ",dst);
+//			while(h!=NULL){
+//				printf("%d-->",h->dst);
+//				h = h->next;
+//			}
+//			printf("\n");
+
+		}
+		else{
+			struct Neighbor *n = malloc(sizeof(struct Neighbor));
+			n->dst = src;
+			n->e = cnt;
+			(nodes[dst]->tail)->next = n;
+			nodes[dst]->tail = n;
+//			struct Neighbor *h = nodes[dst]->head;
+//			printf("start here %d : ",dst);
+//			while(h!=NULL){
+//				printf("%d-->",h->dst);
+//				h = h->next;
+//			}
+//			printf("\n");
+
+		}
+		cnt++;
+	}		
+//	struct Neighbor *h = nodes[7]->head;
+//	while(h!=NULL){
+//		printf("%d-->",h->dst);
+//		h = h->next;
+//	}		
+	dijkstras(n,0,0,nodes,edges);
 }
+
