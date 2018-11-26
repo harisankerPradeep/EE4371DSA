@@ -197,7 +197,7 @@ int main(){
 		while(1){
 			if(cnt>=n || tasks[cnt]->R != i)
 				break;
-			int d = tasks[cnt]->T;
+			int d = tasks[cnt]->D;
 //			for(int j=0;j<end;j++)
 //				printf("before add%d %d\n",heap[j],p[j]);
 			add(heap,p,tasks,cnt,d);
@@ -234,12 +234,12 @@ int main(){
 //				for(int j=0;j<end;j++)
 //					printf("after %d %d\n",heap[j],p[j]);
 //				printf("timeleft = 0\n");
-				printf("%d %d %d\n",i,i+1,t->process_number);
+				printf("%d\t%d\t%d\n",i,i+1,t->process_number);
 				break;
 			}
 			else{
-				replace(heap,p,tasks,pos,t->time_left);
-				printf("%d %d %d \n",i,i+1,t->process_number);
+//				replace(heap,p,tasks,pos,t->time_left);
+				printf("%d\t%d\t%d\n",i,i+1,t->process_number);
 				break;
 			}
 		}
@@ -251,13 +251,13 @@ int main(){
 		int pos = p[0];
 		extract(heap,p,tasks);
 		struct Task *t = tasks[pos];
-		printf("%d %d %d\n",time,time+t->time_left,t->process_number);
+		printf("%d\t%d\t%d\n",time,time+t->time_left,t->process_number);
 		time += t->time_left;
 	}
 	for(int i=0;i<n;i++){
 		struct Task *t = tasks[i];
 		if(t->failed){
-			printf("%d %d %d\n",time,time+t->time_left,t->process_number);
+			printf("%d\t%d\t%d\n",time,time+t->time_left,t->process_number);
 			f++;
 			time += t->time_left;
 		}
