@@ -165,6 +165,7 @@ void replace(double *heap, int *p, struct Node **nodes, int dst, double d){//To 
 }
 void dijkstras(int n,int src, int dst, struct Node **nodes, struct Edge **edges){//To perform dijkstras
 	end = 1;
+	printf("0\n");
 	printf("%d\n",n-1);
 //	set all nodes as it's parent	
 	for(int i=0;i<n;i++){
@@ -196,6 +197,7 @@ void dijkstras(int n,int src, int dst, struct Node **nodes, struct Edge **edges)
 	// get the nearest node from heap
 		double min_d = heap[0];
 		total += min_d;
+		min_d = 0;
 		int min_p = p[0];
 		extract(heap,p,nodes);		
 //		printf("extracted node %d end:%d heap_pos:%d \n",min_p,end,nodes[min_p]->heap_pos);
@@ -206,7 +208,7 @@ void dijkstras(int n,int src, int dst, struct Node **nodes, struct Edge **edges)
 		a->set = 1;
 		if(min_d!= a->current_distance)
 			//printf("ERROR: %lf\n",(min_d-(a->current_distance)));
-		a->set_distance = min_d;
+		a->set_distance = 0;
 		if(foo!=0)
 			printf("%d %d\n",min_p,a->parent);
 		while(head!=NULL){
@@ -218,22 +220,22 @@ void dijkstras(int n,int src, int dst, struct Node **nodes, struct Edge **edges)
 				head = head->next;
 				continue;
 			}
-			if(min_d+d<=nodes[pos]->current_distance){
+			if(d<=nodes[pos]->current_distance){
 				nodes[pos]->parent = min_p;
-				nodes[pos]->current_distance = min_d + d;
+				nodes[pos]->current_distance =  d;
 				if(nodes[pos]->added_to_heap==0){
-					add(heap,p,nodes,pos,min_d+d);
+					add(heap,p,nodes,pos,d);
 					//printf("added %d end: %d\n",pos,end);
 				}
 				else{
-					replace(heap,p,nodes,pos,min_d+d);		
+					replace(heap,p,nodes,pos,d);		
 					//printf("updating %d\n",pos);	
 				}
 			}
 			head = head->next;
 		}
 	}
-	printf("Total distance:%d\n",total);
+//	printf("Total distance:%d\n",total);
 	
 }
 int main(){
