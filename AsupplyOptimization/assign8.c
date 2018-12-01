@@ -252,12 +252,12 @@ int dijkstras(int n,int src, int dst, struct Node **nodes, struct Edge **edges){
 	struct Node *child = nodes[dst];
 	int min = INT_MAX;
 	if(min>edges[child->childEdge]->flow)
-		min = edges[nodes[child->parent]->childEdge]->flow;
+		min = edges[child->childEdge]->flow;
 	while(1){
 		if(child->parent == src){
 			break;
 		}
-		if(min>edges[child->childEdge]->flow)
+		if(min>edges[nodes[child->parent]->childEdge]->flow)
 			min = edges[child->childEdge]->flow;
 		child = nodes[child->parent];
 	}
@@ -274,7 +274,7 @@ int dijkstras(int n,int src, int dst, struct Node **nodes, struct Edge **edges){
 	}
 	//subtract the min flow from all edges	
 	child = nodes[dst];
-	edges[nodes[child->parent]->childEdge]->flow -= min;
+	edges[child->childEdge]->flow -= min;
 	while(1){
 		if(child->parent == src){
 			break;
