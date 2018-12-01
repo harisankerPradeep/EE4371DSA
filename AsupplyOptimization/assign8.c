@@ -3,7 +3,7 @@
 #include <string.h>
 #include <limits.h>
 
-// Perform dijkstras on each cities till the next city is reached
+// Perform dijkstras where instead of min distance max availabe flow is chosen 
 
 struct Node{
 	double lat;
@@ -28,6 +28,11 @@ struct Edge{
 	int src;
 	int dst;
 	double distance;
+	int flow;
+};
+struct finalEdges{
+	int src;
+	int dst;
 	int flow;
 };
 //variable noting end pos of heap
@@ -166,7 +171,7 @@ void replace(double *heap, int *p, struct Node **nodes, int dst, double d){//To 
 		}
 	}
 }
-int dijkstras(int n,int src, int dst, struct Node **nodes, struct Edge **edges){//To perform dijkstras
+int dijkstras(int n,int src, int dst, struct Node **nodes, struct Edge **edges,struct finalEdges **fEdges){//To perform dijkstras
 	end = 1;
 //	set all nodes as it's parent	
 	for(int i=0;i<n;i++){
@@ -261,14 +266,28 @@ int dijkstras(int n,int src, int dst, struct Node **nodes, struct Edge **edges){
 			min = edges[child->childEdge]->flow;
 		child = nodes[child->parent];
 	}
+	min = 10;
 	//print path with min flow
 	child = nodes[dst];
-	printf("%d %d %d %d\n",dst,child->parent,min,child->childEdge);
+//	printf("%d %d %d %d\n",dst,child->parent,min,child->childEdge);
+	if(fEdges[child->childEdge]->src == dst)
+		fEdges[child->childEdge]->flow -= min;
+	else if(fEdges[child->childEdge]->src == child->parent)
+		fEdges[child->childEdge]->flow += min;
+	else
+		printf("Failed \n");
 	while(1){
 		if(child->parent == src){
 			break;
 		}
-		printf("%d %d %d %d\n",child->parent,nodes[child->parent]->parent,min,nodes[child->parent]->childEdge);
+//		printf("%d %d %d %d\n",child->parent,nodes[child->parent]->parent,min,nodes[child->parent]->childEdge);
+		if(fEdges[nodes[child->parent]->childEdge]->src == child->parent)
+			fEdges[nodes[child->parent]->childEdge]->flow -= min;
+		else if(fEdges[nodes[child->parent]->childEdge]->src == nodes[child->parent]->parent)
+			fEdges[nodes[child->parent]->childEdge]->flow += min;
+		else
+			printf("Failed \n");
+
 //		printf("%d %d %d\n",child->parent,nodes[child->parent]->parent,min);
 		child = nodes[child->parent];
 	}
@@ -300,9 +319,14 @@ int main(){
 	int r;
 	fscanf(fp,"%d",&r);
 	struct Edge** edges = malloc(sizeof(struct Edge*)*r);
+	struct finalEdges** fEdges = malloc(sizeof(struct finalEdges*)*r);
 	for(int i = 0; i<r; i++){
 		edges[i] = malloc(sizeof(struct Edge));
+		fEdges[i] = malloc(sizeof(struct finalEdges));
 		fscanf(fp,"%d %d %c %lf",&(edges[i]->src),&(edges[i]->dst),&(edges[i]->type),&(edges[i]->distance));
+		fEdges[i]->src = edges[i]->src;	
+		fEdges[i]->dst = edges[i]->dst;	
+		fEdges[i]->flow = 0; 
 		if(edges[i]->type == 'p')
 			edges[i]->flow = 100;
 		if(edges[i]->type == 's')
@@ -383,5 +407,11 @@ int main(){
 //	}		
 	int result = 1;
 	while(result)
-		result = dijkstras(n,b,a,nodes,edges);
+		result = dijkstras(n,b,a,nodes,edges,fEdges);
+	for(int i=0;i<r;i++){
+		if(fEdges[i]->flow>0)
+			printf("%d %d %d %d\n",fEdges[i]->dst,fEdges[i]->src,fEdges[i]->flow,i);
+		else if(fEdges[i]->flow<0)
+			printf("%d %d %d %d\n",fEdges[i]->src,fEdges[i]->dst,-1*fEdges[i]->flow,i);
+	}
 }
